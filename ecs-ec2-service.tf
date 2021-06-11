@@ -1,20 +1,20 @@
 resource "aws_security_group" "ecs" {
   name        = "ecs_security_group"
   description = "Allows inbound access from the ALB only"
-  vpc_id      = aws_vpc.dfsc_vpc.id
+  vpc_id      = aws_vpc.carsales_vpc.id
 
   ingress {
     from_port       = 0
     to_port         = 0
     protocol        = "-1"
-    security_groups = [aws_security_group.dfsc_alb_sg.id]
+    security_groups = [aws_security_group.carsales_alb_sg.id]
   }
 
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    security_groups = [aws_security_group.dfsc_bastion_sg.id]
+    security_groups = [aws_security_group.carsales_bastion_sg.id]
   }
 
   egress {
@@ -27,8 +27,9 @@ resource "aws_security_group" "ecs" {
 
 resource "aws_launch_configuration" "ecs" {
   name                        = "${var.ecs_cluster_name}-cluster"
-  image_id                    = "ami-0c42adb42b71cacfc"
-  instance_type               = "t2.medium"
+  image_id                    = data.aws_ami.ecs.id
+  instance_type               = var.instance_type_spot
+  spot_price                  = var.spot_bid_price
   security_groups             = [aws_security_group.ecs.id]
   iam_instance_profile        = aws_iam_instance_profile.ecs.name
   key_name                    = aws_key_pair.ssh-key.key_name
@@ -38,12 +39,17 @@ resource "aws_launch_configuration" "ecs" {
 
 resource "aws_autoscaling_group" "ecs-cluster" {
   name                 = "${var.ecs_cluster_name}_auto_scaling_group"
-  min_size             = 1
-  max_size             = 4
-  desired_capacity     = 1
+  termination_policies = [
+     "OldestInstance" # When a “scale down” event occurs, which instances to kill first?
+  ]
+  default_cooldown          = 30
+  health_check_grace_period = 30
+  max_size                  = var.max_spot_instances
+  min_size                  = var.min_spot_instances
+  desired_capacity          = var.min_spot_instances
   health_check_type    = "EC2"
   launch_configuration = aws_launch_configuration.ecs.name
-  vpc_zone_identifier  = [aws_subnet.dfsc-private-1a.id, aws_subnet.dfsc-private-1b.id]
+  vpc_zone_identifier  = [aws_subnet.carsales-private-1a.id, aws_subnet.carsales-private-1b.id]
 }
 
 
@@ -100,7 +106,7 @@ resource "aws_ecs_service" "nginx-app"{
   desired_count   = 1
   
   load_balancer {
-    target_group_arn = aws_lb_target_group.dfsc-back-end-tg.id
+    target_group_arn = aws_lb_target_group.carsales-back-end-tg.id
     container_name  = "nginx-app"
     container_port   = "80"
   }

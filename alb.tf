@@ -25,7 +25,7 @@ resource "aws_security_group" "dfsc_alb_sg" {
     ]
   }
   tags = {
-    Name        = "DFSC ALB Security Group"
+    Name        = "CarSales ALB Security Group"
     Terraform   = "True"
   }
 }
@@ -43,7 +43,7 @@ resource "aws_lb" "dfsc_alb" {
   ]
   enable_deletion_protection = false
   tags = {
-    Name        = "DFSC Application Load Balancer"
+    Name        = "CarSales Application Load Balancer"
     Terraform   = "True"
   }
 }
@@ -121,7 +121,7 @@ resource "aws_lb_target_group" "dfsc-back-end-tg" {
     interval = 10
   }
   tags = {
-    Name        = "DFSC Back End Target Group"
+    Name        = "CarSales Back End Target Group"
     Terraform   = "True"
   }
 }

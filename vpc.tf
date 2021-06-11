@@ -24,37 +24,37 @@ variable "private_2_subnetCIDR" {
 
 # Create VPC
 
-resource "aws_vpc" "dfsc_vpc" {
+resource "aws_vpc" "carsales_vpc" {
   cidr_block = var.aws-vpc-cidr
   instance_tenancy = "default"
   enable_dns_hostnames=true
   tags = {
-    Name = "DFSC VPC"
+    Name = "CarSales VPC"
     Terrafrom = "True"
   }
 }
 # Create and Attach internet gateway
 
-resource "aws_internet_gateway" "dfsc-igw" {
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_internet_gateway" "carsales-igw" {
+  vpc_id = aws_vpc.carsales_vpc.id
   tags = {
-    Name        = "DFSC Internet Gateway"
+    Name        = "CarSales Internet Gateway"
     Terraform   = "true"
   }
 }
 # CREATE ELASTIC IP ADDRESS FOR NAT GATEWAY
 
-  resource "aws_eip" "dfsc-nat1" {
+  resource "aws_eip" "carsales-nat1" {
 }
-  resource "aws_eip" "dfsc-nat2" {
+  resource "aws_eip" "carsales-nat2" {
 }
   
 
 # CREATE NAT GATEWAY in EU-West-1A
 
-resource "aws_nat_gateway" "dfsc-nat-gateway-1a" {
-  allocation_id = aws_eip.dfsc-nat1.id
-  subnet_id     = aws_subnet.dfsc-public-1a.id
+resource "aws_nat_gateway" "carsales-nat-gateway-1a" {
+  allocation_id = aws_eip.carsales-nat1.id
+  subnet_id     = aws_subnet.carsales-public-1a.id
 
   tags = {
     Name        = "Nat Gateway-1a"
@@ -64,9 +64,9 @@ resource "aws_nat_gateway" "dfsc-nat-gateway-1a" {
 
 # CREATE NAT GATEWAY in EU-West-1B
 
-resource "aws_nat_gateway" "dfsc-nat-gateway-1b" {
-  allocation_id = aws_eip.dfsc-nat2.id
-  subnet_id     = aws_subnet.dfsc-public-1b.id
+resource "aws_nat_gateway" "carsales-nat-gateway-1b" {
+  allocation_id = aws_eip.carsales-nat2.id
+  subnet_id     = aws_subnet.carsales-public-1b.id
 
   tags = {
     Name        = "Nat Gateway-1b"
@@ -75,23 +75,23 @@ resource "aws_nat_gateway" "dfsc-nat-gateway-1b" {
 }
 # Create Public Subnets
 
-resource "aws_subnet" "dfsc-public-1a" {
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_subnet" "carsales-public-1a" {
+  vpc_id = aws_vpc.carsales_vpc.id
   cidr_block = var.public_1_subnetCIDR
   availability_zone = "ap-south-1a"
   map_public_ip_on_launch = "true"
   tags = {
-    Name        = "DFSC Pblic Subnet - 1A"
+    Name        = "CarSales Pblic Subnet - 1A"
     Terraform   = "True"
   }
 }
-resource "aws_subnet" "dfsc-public-1b" {
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_subnet" "carsales-public-1b" {
+  vpc_id = aws_vpc.carsales_vpc.id
   cidr_block = var.public_2_subnetCIDR
   availability_zone = "ap-south-1b"
   map_public_ip_on_launch = "true"
   tags = {
-    Name        = "DFSC Pblic Subnet - 1B"
+    Name        = "CarSales Pblic Subnet - 1B"
     Terraform   = "True"
   }
 }
@@ -100,87 +100,87 @@ resource "aws_subnet" "dfsc-public-1b" {
 # Create Private Subnets
 
 
-resource "aws_subnet" "dfsc-private-1a" {
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_subnet" "carsales-private-1a" {
+  vpc_id = aws_vpc.carsales_vpc.id
   cidr_block = var.private_1_subnetCIDR
   availability_zone = "ap-south-1a"
   map_public_ip_on_launch = "false"
   tags = {
-    Name        = "DFSC Private Subnet - 1A"
+    Name        = "CarSales Private Subnet - 1A"
     Terraform   = "True"
   }
 }
 
-resource "aws_subnet" "dfsc-private-1b" {
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_subnet" "carsales-private-1b" {
+  vpc_id = aws_vpc.carsales_vpc.id
   cidr_block = var.private_2_subnetCIDR
   availability_zone = "ap-south-1b"
   map_public_ip_on_launch = "false"
   tags = {
-    Name        = "DFSC Private Subnet - 1B"
+    Name        = "CarSales Private Subnet - 1B"
     Terraform   = "True"
   }
 }
 # Create first private route table and associate it with private subnet in eu-west-1a
  
-resource "aws_route_table" "dfsc_private_route_table_1a" {
-    vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_route_table" "carsales_private_route_table_1a" {
+    vpc_id = aws_vpc.carsales_vpc.id
     route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.dfsc-nat-gateway-1a.id
+    nat_gateway_id = aws_nat_gateway.carsales-nat-gateway-1a.id
   }
     tags =  {
-        Name      = "DFSC Private route table 1A"
+        Name      = "CarSales Private route table 1A"
         Terraform = "True"
   }
 }
  
-resource "aws_route_table_association" "dfsc-1a" {
-    subnet_id = aws_subnet.dfsc-private-1a.id
-    route_table_id = aws_route_table.dfsc_private_route_table_1a.id
+resource "aws_route_table_association" "carsales-1a" {
+    subnet_id = aws_subnet.carsales-private-1a.id
+    route_table_id = aws_route_table.carsales_private_route_table_1a.id
 }
  
 # Create second private route table and associate it with private subnet in eu-west-1b 
  
-resource "aws_route_table" "dfsc_private_route_table_1b" {
-    vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_route_table" "carsales_private_route_table_1b" {
+    vpc_id = aws_vpc.carsales_vpc.id
     route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.dfsc-nat-gateway-1b.id
+    nat_gateway_id = aws_nat_gateway.carsales-nat-gateway-1b.id
   }
     tags =  {
-        Name      = "DFSC Private route table 1B"
+        Name      = "CarSales Private route table 1B"
         Terraform = "True"
   }
 }
  
-resource "aws_route_table_association" "dfsc-1b" {
-    subnet_id = aws_subnet.dfsc-private-1b.id
-    route_table_id = aws_route_table.dfsc_private_route_table_1b.id
+resource "aws_route_table_association" "carsales-1b" {
+    subnet_id = aws_subnet.carsales-private-1b.id
+    route_table_id = aws_route_table.carsales_private_route_table_1b.id
 }
 
 # Create a public route table for Public Subnets
 
-resource "aws_route_table" "dfsc-public" {
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_route_table" "carsales-public" {
+  vpc_id = aws_vpc.carsales_vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.dfsc-igw.id
+    gateway_id = aws_internet_gateway.carsales-igw.id
   }
   tags = {
-    Name        = "DFSC Public Route Table"
+    Name        = "CarSales Public Route Table"
     Terraform   = "true"
     }
 }
 
 # Attach a public route table to Public Subnets
 
-resource "aws_route_table_association" "dfsc-public-1a-association" {
-  subnet_id = aws_subnet.dfsc-public-1a.id
-  route_table_id = aws_route_table.dfsc-public.id
+resource "aws_route_table_association" "carsales-public-1a-association" {
+  subnet_id = aws_subnet.carsales-public-1a.id
+  route_table_id = aws_route_table.carsales-public.id
 }
 
-resource "aws_route_table_association" "dfsc-public-1b-association" {
-  subnet_id = aws_subnet.dfsc-public-1b.id
-  route_table_id = aws_route_table.dfsc-public.id
+resource "aws_route_table_association" "carsales-public-1b-association" {
+  subnet_id = aws_subnet.carsales-public-1b.id
+  route_table_id = aws_route_table.carsales-public.id
 }
