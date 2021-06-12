@@ -25,9 +25,9 @@ resource "aws_efs_access_point" "efs_access_point" {
     Name    = "EFS_For_ECS"
   }
 }
-resource "aws_security_group" "dfsc_efs_sg" {
-  name = "DFSC EFS Security Group"
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_security_group" "carsales_efs_sg" {
+  name = "CarSales EFS Security Group"
+  vpc_id = aws_vpc.carsales_vpc.id
   egress {
   from_port   = 0
   to_port     = 0
@@ -49,12 +49,12 @@ resource "aws_security_group" "dfsc_efs_sg" {
 }
 resource "aws_efs_mount_target" "ecs_temp_space_az0" {
   file_system_id = "${aws_efs_file_system.efs_volume.id}"
-  subnet_id      = aws_subnet.dfsc-private-1a.id
-  security_groups = [aws_security_group.dfsc_efs_sg.id]
+  subnet_id      = aws_subnet.carsales-private-1a.id
+  security_groups = [aws_security_group.carsales_efs_sg.id]
 }
 
 resource "aws_efs_mount_target" "ecs_temp_space_az1" {
   file_system_id = "${aws_efs_file_system.efs_volume.id}"
-  subnet_id      = aws_subnet.dfsc-private-1b.id
-  security_groups = [aws_security_group.dfsc_efs_sg.id]
+  subnet_id      = aws_subnet.carsales-private-1b.id
+  security_groups = [aws_security_group.carsales_efs_sg.id]
 }
