@@ -28,7 +28,7 @@ resource "aws_security_group" "carsales_bastion_sg" {
 # CREATE BASTION HOST IN PUBLIC SUBNET
 
 resource "aws_instance" "carsales_bastion_host-1a" {
-  ami = "ami-02a2e419a7ed55325"
+  ami = data.aws_ami.bastion_host.id
   instance_type = "t2.micro"
   key_name = aws_key_pair.ssh-key.key_name
   associate_public_ip_address = true
@@ -42,15 +42,15 @@ resource "aws_instance" "carsales_bastion_host-1a" {
 
 # CREATE BASTION HOST IN  PUBLIC SUBNET
 
-resource "aws_instance" "carsales_bastion_host-1b" {
-  ami = "ami-02a2e419a7ed55325"
-  instance_type = "t2.micro"
-  key_name = aws_key_pair.ssh-key.key_name
-  associate_public_ip_address = true
-  vpc_security_group_ids = [aws_security_group.carsales_bastion_sg.id]
-  subnet_id = aws_subnet.carsales-public-1b.id
-  tags = {
-    Name = "CarSales Bastion Host - 1B"
-    Terraform = true
-  }
-}
+#resource "aws_instance" "carsales_bastion_host-1b" {
+#
+#  instance_type = "t2.micro"
+#  key_name = aws_key_pair.ssh-key.key_name
+#  associate_public_ip_address = true
+#  vpc_security_group_ids = [aws_security_group.carsales_bastion_sg.id]
+#  subnet_id = aws_subnet.carsales-public-1b.id
+#  tags = {
+#    Name = "CarSales Bastion Host - 1B"
+#    Terraform = true
+#  }
+#}
