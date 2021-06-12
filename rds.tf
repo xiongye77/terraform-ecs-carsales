@@ -1,8 +1,8 @@
 # CREATE RDS SECURITY GROUP
 
-resource "aws_security_group" "dfsc_db_sg" {
-  name = "DFSC RDS Security Group"
-  vpc_id = aws_vpc.dfsc_vpc.id
+resource "aws_security_group" "carsales_db_sg" {
+  name = "CarSales RDS Security Group"
+  vpc_id = aws_vpc.carsales_vpc.id
   egress {
   from_port   = 0
   to_port     = 0
@@ -23,13 +23,13 @@ resource "aws_security_group" "dfsc_db_sg" {
   }
 }
 
-# Create DFSC Database Subnet Group
+# Create CarSales Database Subnet Group
 
-resource "aws_db_subnet_group" "dfsc-db-subnet" {
-  name = "dfsc-database-subnet-group"
+resource "aws_db_subnet_group" "carsales-db-subnet" {
+  name = "carsales-database-subnet-group"
   subnet_ids = [
-    aws_subnet.dfsc-private-1a.id,
-    aws_subnet.dfsc-private-1b.id
+    aws_subnet.carsales-private-1a.id,
+    aws_subnet.carsales-private-1b.id
     ]
 
   tags = {
@@ -38,9 +38,9 @@ resource "aws_db_subnet_group" "dfsc-db-subnet" {
   }
 }
 
-# Create DFSC Database Instance 
+# Create CarSales Database Instance 
 
-resource "aws_db_instance" "dfsc-db" {
+resource "aws_db_instance" "carsales-db" {
   allocated_storage       = "10"
   storage_type            = "gp2"
   engine                  = "postgres"
@@ -51,15 +51,15 @@ resource "aws_db_instance" "dfsc-db" {
   # Set the secrets from AWS Secrets Manager
   username = local.db_creds.username
   password = "${random_string.password.result}"  
-  identifier              = "dfsc-database"
+  identifier              = "carsales-database"
   skip_final_snapshot     = "true"
   backup_retention_period = "7"
   port                    = "3306"
   storage_encrypted       = "false"
-  db_subnet_group_name    = aws_db_subnet_group.dfsc-db-subnet.name
-  vpc_security_group_ids  = [aws_security_group.dfsc_db_sg.id]
+  db_subnet_group_name    = aws_db_subnet_group.carsales-db-subnet.name
+  vpc_security_group_ids  = [aws_security_group.carsales_db_sg.id]
    tags = {
-    Name        = "DFSC Database"
+    Name        = "CarSales Database"
     Terraform   = "true"
   }
 }
@@ -87,5 +87,5 @@ locals {
 resource "aws_ssm_parameter" "db_host" {
   name  = "/production/myapp/db-host"
   type  = "String"
-  value = aws_db_instance.dfsc-db.endpoint
+  value = aws_db_instance.carsales-db.endpoint
 }

@@ -51,30 +51,31 @@ resource "aws_lb" "carsales_alb" {
 
 resource "aws_lb_listener" "carsales_https" {
   load_balancer_arn = aws_lb.carsales_alb.arn
-  port = 443
-  protocol = "HTTPS"
- ssl_policy        = "ELBSecurityPolicy-TLS-1-0-2015-04"
-  certificate_arn   = "arn:aws:acm:ap-south-1:207880003428:certificate/8a42034f-90c6-4c07-8dc7-f2fe2e6205bf"
+  port = 80
+  protocol = "HTTP"
+#  protocol = "HTTPS"
+#  ssl_policy        = "ELBSecurityPolicy-TLS-1-0-2015-04"
+#  certificate_arn   = "arn:aws:acm:ap-south-1:207880003428:certificate/8a42034f-90c6-4c07-8dc7-f2fe2e6205bf"
   default_action {
-    type = "forward"
-    target_group_arn = aws_lb_target_group.carsales-back-end-tg.arn
+  type = "forward"
+  target_group_arn = aws_lb_target_group.carsales-back-end-tg.arn
   }
 }
 
-resource "aws_lb_listener" "carsales_https_redirect" {
-  load_balancer_arn = aws_lb.carsales_alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
+#resource "aws_lb_listener" "carsales_https_redirect" {
+#  load_balancer_arn = aws_lb.carsales_alb.arn
+#  port              = "80"
+#  protocol          = "HTTP"
+#
+#  default_action {
+#    type = "redirect"
+#    redirect {
+#      port        = "443"
+#      protocol    = "HTTPS"
+#      status_code = "HTTP_301"
+#    }
+#  }
+#}
 
 resource "aws_lb_listener_rule" "carsales_test1_https" {
   listener_arn = aws_lb_listener.carsales_https.arn
@@ -85,7 +86,7 @@ resource "aws_lb_listener_rule" "carsales_test1_https" {
   }
     condition {
     path_pattern {
-      values = ["/test1/"]
+      values = ["/carsales1/"]
     }
   }
 }
@@ -100,15 +101,15 @@ resource "aws_lb_listener_rule" "carsales_test2_https" {
   }
     condition {
     path_pattern {
-      values = ["/test2/"]
+      values = ["/carsales2/"]
     }
   }
 }
 
-resource "aws_lb_target_group" "carsales-back-end-tg" {
+resource "aws_lb_target_group" "carsales-back-end-tg-1" {
   port = 80
   protocol = "HTTP"
-  name = "carsales-back-end-target-group"
+  name = "carsales-back-end-tg-1"
   vpc_id = aws_vpc.carsales_vpc.id
   stickiness {
     type = "lb_cookie"
@@ -121,16 +122,15 @@ resource "aws_lb_target_group" "carsales-back-end-tg" {
     interval = 10
   }
   tags = {
-    Name        = "CarSales Back End Target Group"
+    Name        = "CarSales Back End Target Group 1"
     Terraform   = "True"
   }
 }
 
 resource "aws_lb_target_group" "carsales-back-end-tg-2" {
-  name                 = "demo-http-blue"
-  port                 = "3000"
+  name                 = "carsales-back-end-tg-2"
+  port                 = 80
   protocol             = "HTTP"
-  target_type          = "ip"
   vpc_id               = aws_vpc.carsales_vpc.id
   deregistration_delay = "30"
 
@@ -138,7 +138,12 @@ resource "aws_lb_target_group" "carsales-back-end-tg-2" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     protocol            = "HTTP"
-    interval            = 30
+    interval            = 10
   }
+  tags = {
+    Name        = "CarSales Back End Target Group 2"
+    Terraform   = "True"
+  }
+
 }
 
